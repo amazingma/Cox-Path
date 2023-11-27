@@ -15,7 +15,7 @@ conda env create --name coxpath --file=environment.yml
 ```
 source activate coxpath
 ```
-### 2. Train the model via run
+### 2. Train the model
 ```
 python train.py
 ```
