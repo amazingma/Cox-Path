@@ -9,11 +9,13 @@ git clone https://github.com/amazingma/Cox-Path.git
 ```
 conda env create --name coxpath --file=environment.yml
 ```
-### 3. Activate the created conda environment
+
+## Usage
+### 1. Activate the created conda environment
 ```
 source activate coxpath
 ```
-### 4. Train the model via run
+### 2. Train the model via run
 ```
 python train.py
 ```
