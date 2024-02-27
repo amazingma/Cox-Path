@@ -1,4 +1,5 @@
 # Cox-Path: A biologically-informed multi-omics model for cancer survival prediction
+![Cox-Path](https://github.com/amazingma/Cox-Path/blob/main/figures/Cox-Path.png)
 
 ## Getting Started
 ### 1. Clone the repo
