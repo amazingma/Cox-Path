@@ -44,7 +44,6 @@ if args.cuda:
 # np.save('log/features.npy', features)
 # np.save('log/labels.npy', labels)
 # np.save('log/adj.npy', adj)
-
 features = np.load('log/features.npy', allow_pickle=True)
 labels = np.load('log/labels.npy', allow_pickle=True)
 adj = np.load('log/adj.npy', allow_pickle=True)
@@ -140,8 +139,6 @@ def test(model_t, x_test, y_test, save=False):
     #     np.save('log/' + str(cindex_test) + '_p_test.npy', pred_test)
     return loss_test, cindex_test
 
-
-# Training
 cindex_final = 0.0
 t_start = time.time()
 for rep in range(10):
