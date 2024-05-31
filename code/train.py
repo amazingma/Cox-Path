@@ -36,7 +36,7 @@ args.cuda = not args.no_cuda and torch.cuda.is_available()
 np.random.seed(args.seed)
 torch.manual_seed(args.seed)
 if args.cuda:
-    torch.cuda.manual_seed(args.seed)
+    torch.cuda.manual_seed_all(args.seed)
 
 # features, pathlist, labels = myLoader.feat_extract(path, omics_files)
 # edges = myLoader.omix_info(path)
