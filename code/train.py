@@ -55,10 +55,10 @@ if args.cuda:
 
 
 def k_fold(r, k, x, y, epo):
-    index = [i for i in range(len(y))]
-    random.shuffle(index)
-    x = x[index]
-    y = y[index]
+    # index = [i for i in range(len(y))]
+    # random.shuffle(index)
+    # x = x[index]
+    # y = y[index]
 
     cindex_tot = 0.
     for f in range(k):
