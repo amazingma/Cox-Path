@@ -1,2 +1,2 @@
 We carefully select 10 cancer types with the largest sample sizes from TCGA, including BLCA, BRCA, HNSC, KIRC, LGG, LUAD, LUSC, OV, SKCM, STAD.
-In addition to BRCA, the other 9 datasets have been packaged and deposited in Zenodo repository (https://zenodo.org/records/10811810).
+These datasets have been packaged and deposited in Zenodo repository (https://zenodo.org/records/11945560).
