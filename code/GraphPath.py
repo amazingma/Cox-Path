@@ -15,11 +15,7 @@ class GraphPath(nn.Module):
         self.gcn2 = GraphConvolution(n_hid, n_hid)
         self.lin1 = nn.Linear(n_hid, 1)
         self.lin2 = nn.Linear(num_path + num_clinical, 1)
-        # self.lin2 = nn.Linear(num_path, 1)  # 用于clinical消融
-
         self.activ = nn.Tanh()
-        self.BN = nn.BatchNorm1d(num_path + num_clinical)
-        # self.BN = nn.BatchNorm1d(num_path*z)  # 用于clinical消融
 
     def forward(self, x, adj, clinical, out=False):
         x = self.activ(self.gcn1(x, adj))
@@ -32,7 +28,6 @@ class GraphPath(nn.Module):
             t = round(time.time())
             np.save('log/node_' + str(t) + '.npy', x.detach().numpy())
         x = torch.cat([x, clinical], dim=1)
-        # x = self.BN(x)  # clinical消融不要注掉
         x = self.lin2(x)
 
         return x
