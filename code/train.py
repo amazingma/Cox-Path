@@ -13,22 +13,21 @@ import argparse
 import copy
 import os
 
-# 自定义路径,组学,超参数
 path = "../../data/Cox-Path/BRCA/"
-omics_files = ['methy', 'mrna']  # 'methy', 'mrna', 'mutation', 'cnv'
+omics_files = ['methy', 'mrna']
 parser = argparse.ArgumentParser()
-parser.add_argument('--seed', type=int, default=66, help='Random seed.')  # 固定(66)
+parser.add_argument('--seed', type=int, default=66, help='Random seed.')
 parser.add_argument('--no_cuda', action='store_true', default=False, help='Disables CUDA training.')
 parser.add_argument('--fastmode', action='store_true', default=False, help='Validate during training pass.')
-parser.add_argument('--hidden', type=int, default=100, help='Number of hidden units.')  # 固定(100)
+parser.add_argument('--hidden', type=int, default=100, help='Number of hidden units.')
 parser.add_argument('--out', type=int, default=1, help='Number of out units.')
-parser.add_argument('--dropout', type=float, default=0.5, help='Dropout rate (1 - keep probability).')  # 固定(0.5)
-parser.add_argument('--lr', type=float, default=0.005, help='Initial learning rate.')  # 固定(0.005)
-parser.add_argument('--weight_decay', type=float, default=0.1, help='L2 loss on parameters.')  # 固定(0.1)
+parser.add_argument('--dropout', type=float, default=0.5, help='Dropout rate (1 - keep probability).')
+parser.add_argument('--lr', type=float, default=0.005, help='Initial learning rate.')
+parser.add_argument('--weight_decay', type=float, default=0.1, help='L2 loss on parameters.')
 parser.add_argument('--clinical', type=int, default=6, help='Number of clinical information')
 parser.add_argument('--k_fold', type=int, default=50, help='K-fold cross validation')
 parser.add_argument('--epoch', type=int, default=500, help='Number of epochs to train.')
-parser.add_argument('--batch', type=int, default=156, help='batch size.')  # 156
+parser.add_argument('--batch', type=int, default=156, help='batch size.')
 
 # os.environ["CUDA_VISIBLE_DEVICES"] = "6"
 args = parser.parse_args()
@@ -40,15 +39,13 @@ if args.cuda:
 rint = np.random.randint(1, 1000, args.k_fold)
 print(rint)
 
-# 保存features, labels, adj
 # features, pathlist, labels = myLoader.feat_extract(path, omics_files)
 # edges = myLoader.omix_info(path)
 # adj = get_map(edges, pathlist)
 # np.save('log/features.npy', features)
 # np.save('log/labels.npy', labels)
 # np.save('log/adj.npy', adj)
-# 读取features, labels, adj
-features = np.load('log/features_2_onlymethy.npy', allow_pickle=True)
+features = np.load('log/features_methy.npy', allow_pickle=True)
 labels = np.load('log/labels.npy', allow_pickle=True)
 adj = np.load('log/adj.npy', allow_pickle=True)
 features = torch.tensor(np.array(features), dtype=torch.float32)
@@ -72,11 +69,7 @@ def k_fold(k, x, y, epo):
         model_best = None
         counter = 0
         for e in range(epo):
-            # Early Stopping
-            if (e - counter) > 10:  # 固定(10)
-                # PATH = 'model/model_' + str(r+1) + '_' + str(f+1) + '.pt'
-                # torch.save(model_best, PATH)
-                # model_test = torch.load(PATH)
+            if (e - counter) > 10:
                 break
             for bat, (x_bat, y_bat) in enumerate(loader):
                 loss_vali, cindex_vali = train(e, x_bat, y_bat, x_valid, y_valid, model, opt)
@@ -93,11 +86,9 @@ def k_fold(k, x, y, epo):
 
 
 def train(epo, x_train, y_train, x_valid, y_valid, model, opt):
-    # torch.cuda.empty_cache()
     if args.cuda:
         x_train = x_train.cuda()
         y_train = y_train.cuda()
-    # 临床信息
     clinical_train = y_train[:, :args.clinical]
     os_train = y_train[:, args.clinical].unsqueeze(1)
     event_train = y_train[:, args.clinical + 1].unsqueeze(1)
@@ -112,17 +103,13 @@ def train(epo, x_train, y_train, x_valid, y_valid, model, opt):
 
     if not args.fastmode:
         loss_vali, cindex_vali = test(model, x_valid, y_valid)
-        # print('Epoch ' + str(epo) + '\033[1;32m Train\033[0m Loss = ' + format(loss_train.item(), '.4f') + ', C-index = ' + format(cindex_train.item(), '.4f')
-        #       + ';\033[1;35m Validation\033[0m Loss = ' + format(loss_vali.item(), '.4f') + ', C-index = ' + format(cindex_vali.item(), '.4f'))
         return loss_vali, cindex_vali
 
 
 def test(model_t, x_test, y_test, save=False):
-    # torch.cuda.empty_cache()
     if args.cuda:
         x_test = x_test.cuda()
         y_test = y_test.cuda()
-    # 临床信息
     clinical_test = y_test[:, :args.clinical]
     os_test = y_test[:, args.clinical].unsqueeze(1)
     event_test = y_test[:, args.clinical + 1].unsqueeze(1)
@@ -138,7 +125,6 @@ def test(model_t, x_test, y_test, save=False):
     return loss_test, cindex_test
 
 
-# Training
 t_start = time.time()
 k_fold(args.k_fold, features, labels, args.epoch)
 print('The Final C-index Mean Value of 50 Times Cross Validation is ' + format(np.mean(cindex_list), '.6f') + '+-' + format(np.std(cindex_list), '.6f'))
