@@ -4,30 +4,21 @@ import pandas as pd
 import utils
 
 minsize = 0
-# maxsize = 20  # test
 maxsize = 1926
 
 
 def omix_data(path, omics_files):
-    # utils.methyProp()
-    # utils.cnvProp()
-    # utils.mrnaProp()
-    # utils.probeMapping()
-    # utils.transposition()
-    # utils.sdFilter()
     for omics in omics_files:
         print(omics + '.', end='')
     labels = pd.read_csv(path + "clinical.csv")
     patientID = labels.loc[:, 'id'].tolist()
 
     omicslist = []
-    # 样本交集
-    omics_files_4 = ['methy', 'mrna']  # 'methy', 'mrna', 'mutation', 'cnv'
+    omics_files_4 = ['methy', 'mrna']
     for i in range(len(omics_files_4)):
         temp = pd.read_csv(path + omics_files_4[i] + ".csv", index_col=0)
         tempID = temp.index.tolist()
         patientID = list(set(patientID) & set(tempID))
-    # 预处理
     for i in range(len(omics_files)):
         temp = pd.read_csv(path + omics_files[i] + ".csv", index_col=0)
         temp = temp.loc[patientID, :]
@@ -46,11 +37,8 @@ def gene_info(path, omics_files):
     for i in range(len(omics_files)):
         temp_gene = pd.read_csv(path + omics_files[i] + "_genelist.csv")
         omics_genelist.append(temp_gene)
-    # KEGG
     path_gene = pd.read_csv(path + "/kegg_gene.csv")
     pathsize = path_gene.groupby(['ko']).size()
-    # np.save('log/pathsize.npy', pathsize)
-    # 筛选pathway
     pathlist = pathsize[((pathsize >= minsize) & (pathsize <= maxsize))].index.tolist()
     return omics_genelist, path_gene, pathlist
 
@@ -64,7 +52,6 @@ def feat_extract(path, omics_files):
     omicslist, labels = omix_data(path, omics_files)
     omics_genelist, path_gene, pathlist = gene_info(path, omics_files)
 
-    # 得到不重复的genelist作为列名
     undup_path_genes = set(path_gene['gene'].values.tolist())
     undup_omic_genes = []
     for genelist in omics_genelist:
@@ -86,12 +73,10 @@ def feat_extract(path, omics_files):
         print(str(i) + ': ' + ko, end='\r')
         i = i + 1
         ko_genelist = path_gene[path_gene['ko'] == ko]['gene'].tolist()
-        # path_gene中有重复
         ko_genelist = list(set(ko_genelist))
         path_feat = data_extract(omicslist, undup_omic_genes, ko_genelist)
         path_feat = path_feat.to(torch.float32)
         input.append(path_feat)
-    # 第二次拼接：Pathway水平(N, P, *)
     features = torch.cat(input, dim=1)
 
     print("Samples: " + str(features.shape[0]) + ", Pathways: " + str(features.shape[1]) + ", Genes: " + str(len(total_genes)))
@@ -110,7 +95,6 @@ def data_extract(omicslist, undup_omic_genes, ko_genelist):
         feature = torch.tensor(np.array(feature))
         features_omics.append(feature)
 
-    # 第一次拼接：组学水平
     feature = torch.cat(features_omics, dim=1)
     f = feature.unsqueeze(1)
     del feature
