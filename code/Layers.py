@@ -22,8 +22,6 @@ class GraphConvolution(nn.Module):
     def forward(self, input, adj):
         x = torch.einsum('npk,kh->nph', input, self.weight)
         output = torch.einsum('pp,nph->nph', adj, x)
-        # x = torch.matmul(input, self.weight)
-        # output = torch.matmul(adj, x)
         if self.bias is not None:
             output += self.bias
         return output
