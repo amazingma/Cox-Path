@@ -3,15 +3,11 @@ import torch
 
 def C_index(pred, time, event):
     n_sample = len(time)
-    # 对角线及以下为1
     time_indicator = R_set(time)
-    # 对角线以下为1, 自己不跟自己比较
     time_matrix = time_indicator - torch.diag(torch.diag(time_indicator))
-    # [idx_censor, 0]
     censor_idx = (event == 0).nonzero()
     zeros = torch.zeros(n_sample)
     time_matrix[censor_idx, :] = zeros
-    # 生成和括号内变量维度一致的全0Tensor
     pred_matrix = torch.zeros_like(time_matrix)
     for j in range(n_sample):
         for i in range(n_sample):
@@ -20,12 +16,9 @@ def C_index(pred, time, event):
             elif pred[i] == pred[j]:
                 pred_matrix[j, i] = 0.5
 
-    # 点乘, 保留未删失的生存时间小于删失或未删失的配对结果
     concord_matrix = pred_matrix.mul(time_matrix)
     concord = torch.sum(concord_matrix)
-    # 未删失的配对数
     epsilon = torch.sum(time_matrix)
-    # 相除
     concordance_index = torch.div(concord, epsilon)
     if torch.cuda.is_available():
         concordance_index = concordance_index.cuda()
@@ -33,16 +26,12 @@ def C_index(pred, time, event):
 
 
 def Likelihood(pred, time, event):
-    # num_event
     n_observed = event.sum(0)
     time_indicator = R_set(time)
     if torch.cuda.is_available():
         time_indicator = time_indicator.cuda()
-    # shape[B, 1]：类似斐波那契数列
     risk_set_sum = time_indicator.mm(torch.exp(pred))
-    # 第一个样本的损失永远是0或2.9802e-08
     diff = pred - torch.log(risk_set_sum)
-    # shape[1, 1]
     sum_diff_in_observed = torch.transpose(diff, 0, 1).mm(event)
     cost = (- (sum_diff_in_observed / n_observed)).reshape(-1,)
     return cost
@@ -51,6 +40,5 @@ def Likelihood(pred, time, event):
 def R_set(x):
     n_sample = x.size(0)
     matrix_ones = torch.ones(n_sample, n_sample)
-    # 下三角含对角线
     indicator_matrix = torch.tril(matrix_ones)
     return indicator_matrix
