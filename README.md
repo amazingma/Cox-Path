@@ -22,3 +22,8 @@ source activate coxpath
 ```
 python train.py
 ```
+
+## References
+```
+Teng Ma, Haochen Zhao, Qichang Zhao, and Jianxin Wang. 2024. Cox-Path: Biological Pathway-Informed Graph Neural Network for Cancer Survival Prediction. In Proceedings of the 15th ACM International Conference on Bioinformatics, Computational Biology and Health Informatics (BCB '24). Association for Computing Machinery, New York, NY, USA, Article 70, 1–6. https://doi.org/10.1145/3698587.3701397
+```
